@@ -7,13 +7,14 @@
 
 #define D 1.9 // Near plane
 
-/*
-float S = 0.01;
+
+float S = 1;
 bool cres = true;
-*/
+
 
 objLoader *objData;
 float phi = 0;
+float theta = 0;
 
 void CleanScreen(void){
 	for(int i = 0; i < IMAGE_WIDTH-1; i++){
@@ -88,12 +89,12 @@ void MyGlDraw(void)
 				0,         0,        0, 1;
 
 
-	Model_T << 1, 0, 0, 0,
-			   0, 1, 0, 0,
-			   0, 0, 1, 0,
+	Model_T << S, 0, 0, 0,
+			   0, S, 0, 0,
+			   0, 0, S, 0,
 			   0, 0, 0, 1;
 
-	Model = Model_T /* Model_Ry*/;
+	Model = Model_T * Model_Ry * Model_Rx;
 
 
 	/**  Construindo Vetores da Câmera  **/
@@ -183,14 +184,20 @@ void MyGlDraw(void)
 	if(cres){
 		if(S > 1)
 			cres = false;
-		S += 0.1;
+		S += 0.01;
 	}
 	else{
 		if(S < 0.5)
 			cres = true;
-		S -= 0.1;
+		S -= 0.01;
 	}
 */
+	if(theta < PI){
+		theta += PI/512;
+		S = sin(theta) * 1.7;
+	}else
+		theta = 0;
+
 }
 
 int main(int argc, char **argv)
@@ -201,9 +208,9 @@ int main(int argc, char **argv)
 	InitDataStructures();
 
 	objData = new objLoader();			// cria o objeto que carrega o modelo
-	objData->load("monkey_head2.obj");	// a carga do modelo é indicada atraves do nome do arquivo.
+	//objData->load("monkey_head2.obj");	// a carga do modelo é indicada atraves do nome do arquivo.
 	//objData->load("Stahlswert.obj");
-
+	objData->load("ico.obj");
 
 	// Ajusta a função que chama as funções do mygl.h
 	DrawFunc = MyGlDraw;	
