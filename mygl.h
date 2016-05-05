@@ -7,6 +7,11 @@
 
 #include "objLoader.h"
 
+#define VERMELHO 255,0,0,255
+#define VERDE 0,255,0,255
+#define AZUL 0,0,255,255
+#define BRANCO 255,255,255,255
+
 
 typedef Eigen::Matrix<float, 4, 4> Matrix4f; // Matriz quadrada 4x4
 typedef Eigen::Matrix<float, 3, 3> Matrix3f; // Matriz quadrada 3x3

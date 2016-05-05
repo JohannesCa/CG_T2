@@ -5,13 +5,12 @@
 
 #define PI 3.1415
 
-#define VERMELHO 255,0,0,255
-#define VERDE 0,255,0,255
-#define AZUL 0,0,255,255
-#define BRANCO 255,255,255,255
+#define D 1.7  // Near plane
 
-#define D 1  // Near plane
-//#define F 50.0  // Far plane
+/*
+float D = 0.01;
+bool cres = true;
+*/
 
 objLoader *objData;
 float phi = 0;
@@ -43,6 +42,7 @@ void CalcDistort(Matrix4f &Transf)
 
 			vertex[j](3) = 1;
 			vertex[j] = Transf * vertex[j];
+			vertex[j] /= vertex[j](3);
 		}
 
 		Triangle *faces = new Triangle(new Pixel(BRANCO, vertex[0](0), vertex[0](1)),
@@ -54,17 +54,16 @@ void CalcDistort(Matrix4f &Transf)
 	}
 }
 
-//-----------------------------------------------------------------------------
-
 void MyGlDraw(void)
 {
 	Matrix4f Model, View, Projection, Canonical, ModelViewPort;
-	Matrix4f Model_T, Model_R; // Model translation and rotation
+	Matrix4f Model_T, Model_Rx, Model_Ry, Model_Rz; // Model translation and rotations
 	Matrix4f Projection_P, Projection_T;
 	Matrix4f ModelViewPort_T, ModelViewPort_S1, ModelViewPort_S2; // ModelViewPort translation and scale
 	Matrix4f Cam_Bt, Cam_T;
 
 	Vector3f CamX, CamY, CamZ;
+
 	Vector3f Cam_pos(0, 0, 4),
 			 Cam_lookat(0, 0, 0),
 			 Cam_up(0, 1, 0);
@@ -73,18 +72,28 @@ void MyGlDraw(void)
 	/**  Montando matriz de transformação Model  **/
 
 
-	Model_R << cos(phi), 0, -sin(phi), 0,
-			   0,        1,  0,        0,
-			   sin(phi), 0,  cos(phi), 0,
-			   0,        0,  0,        1;
+	Model_Rx << 1, 0,         0,        0,
+			    0, cos(phi), -sin(phi), 0,
+			    0, sin(phi),  cos(phi), 0,
+			    0, 0,         0,        1;
+
+	Model_Ry << cos(phi), 0, -sin(phi), 0,
+			    0,        1,  0,        0,
+			    sin(phi), 0,  cos(phi), 0,
+			    0,        0,  0,        1;
+
+	Model_Rz << cos(phi), -sin(phi), 0, 0,
+				sin(phi),  cos(phi), 0, 0,
+				0,         0,        1, 0,
+				0,         0,        0, 1;
 
 
 	Model_T << 1, 0, 0, 0,
-			   0, 1.5, 0, 0,
+			   0, 1, 0, 0,
 			   0, 0, 1, 0,
 			   0, 0, 0, 1;
 
-	Model = Model_T * Model_R;
+	Model = Model_T /** Model_Ry*/;
 
 
 	/**  Construindo Vetores da Câmera  **/
@@ -154,17 +163,35 @@ void MyGlDraw(void)
 
 	ModelViewPort = ModelViewPort_S2 * ModelViewPort_T * ModelViewPort_S1 * Canonical;
 
+
+	/**  Limpa a tela e aplica a transformação do pipeline Gráfico  **/
+
 	CleanScreen();
-	CalcDistort(ModelViewPort); // Calcula a distorção no pipeline Gráfico
+	CalcDistort(ModelViewPort);
+
+
+	/**  Para rotacionar o objeto variamos o ângulo phi  **/
 
 	if(phi < 2*PI)
 		phi += PI/64;
 	else
 		phi = 0;
 
-}
 
-//-----------------------------------------------------------------------------
+	/**  Extra: Fazer variar a distorção de perspectiva  **/
+/*
+	if(cres){
+		if(D > 1.8)
+			cres = false;
+		D += 0.01;
+	}
+	else{
+		if(D < 0.2)
+			cres = true;
+		D -= 0.01;
+	}
+*/
+}
 
 int main(int argc, char **argv)
 {
@@ -175,7 +202,8 @@ int main(int argc, char **argv)
 
 	objData = new objLoader();			// cria o objeto que carrega o modelo
 	objData->load("monkey_head2.obj");	// a carga do modelo é indicada atraves do nome do arquivo.
-										// Neste caso, deve ser sempre do tipo OBJ.
+	//objData->load("Stahlswert.obj");
+
 
 	// Ajusta a função que chama as funções do mygl.h
 	DrawFunc = MyGlDraw;	
