@@ -5,10 +5,10 @@
 
 #define PI 3.1415
 
-#define D 1.7  // Near plane
+#define D 1.9 // Near plane
 
 /*
-float D = 0.01;
+float S = 0.01;
 bool cres = true;
 */
 
@@ -64,7 +64,7 @@ void MyGlDraw(void)
 
 	Vector3f CamX, CamY, CamZ;
 
-	Vector3f Cam_pos(0, 0, 4),
+	Vector3f Cam_pos(0, 0, 2),
 			 Cam_lookat(0, 0, 0),
 			 Cam_up(0, 1, 0);
 
@@ -93,7 +93,7 @@ void MyGlDraw(void)
 			   0, 0, 1, 0,
 			   0, 0, 0, 1;
 
-	Model = Model_T /** Model_Ry*/;
+	Model = Model_T /* Model_Ry*/;
 
 
 	/**  Construindo Vetores da Câmera  **/
@@ -181,14 +181,14 @@ void MyGlDraw(void)
 	/**  Extra: Fazer variar a distorção de perspectiva  **/
 /*
 	if(cres){
-		if(D > 1.8)
+		if(S > 1)
 			cres = false;
-		D += 0.01;
+		S += 0.1;
 	}
 	else{
-		if(D < 0.2)
+		if(S < 0.5)
 			cres = true;
-		D -= 0.01;
+		S -= 0.1;
 	}
 */
 }
